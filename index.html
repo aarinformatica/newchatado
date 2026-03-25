@@ -1,113 +1,109 @@
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CHATADO - Master Control</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>Chatado</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-</head>
-<body class="theme-clean">
-
-    <div id="theme-loader" class="theme-loader" style="display: none;">
-        <div class="spinner"></div>
-        <p>Autenticando Hierarquia...</p>
-    </div>
-
-    <main id="login-screen" class="screen-container">
-        <div id="main-box" class="login-box">
-            <button id="open-theme-modal" class="theme-btn-corner"><i class="fa-solid fa-palette"></i></button>
-            <div class="icon-wrapper">
-                <i id="secret-icon" class="fa-solid fa-comments chat-icon pulse-anim"></i>
-            </div>
-            <h1 class="logo-text">CHAT<span class="logo-suffix">ADO</span></h1>
-            <p class="subtitle">Controle de Administrador</p>
-            <form id="loginForm">
-                <input type="text" id="username" placeholder="Seu apelido..." required autocomplete="off">
-                <input type="password" id="admin-pass" placeholder="Senha de Acesso" autocomplete="off" style="display:none; margin-top:10px;">
-                <button type="submit" class="btn-entrar">ENTRAR</button>
-            </form>
-        </div>
-    </main>
-
-    <main id="chat-area" class="screen-container" style="display: none;">
-        <div class="chat-box">
-            <div class="chat-header">
-                <div class="chat-user-info">
-                    <div class="dropdown-wrapper">
-                        <button id="menu-toggle" class="chat-action-btn menu-icon">
-                            <i class="fa-solid fa-users"></i>
-                            <span id="online-count">0</span>
-                        </button>
-                        <div id="side-menu" class="floating-menu">
-                            <div class="menu-pointer"></div>
-                            <div class="menu-header-inner">MEMBROS ONLINE</div>
-                            <ul id="user-list" class="user-list-flow"></ul>
-                        </div>
-                    </div>
-                    <div class="user-text-wrapper">
-                        <span id="user-display">Usuário</span>
-                        <small id="chat-status">Membro Ativo</small>
-                    </div>
-                </div>
-
-                <div class="chat-header-actions">
-                    <button id="btn-master-panel" class="chat-action-btn master-btn" title="Painel de Controle" style="display:none;">
-                        <i class="fa-solid fa-shield-halved"></i>
-                    </button>
-                    <button class="chat-action-btn" id="chat-theme-btn"><i class="fa-solid fa-palette"></i></button>
-                    <button id="btn-sair" class="chat-action-btn exit"><i class="fa-solid fa-right-from-bracket"></i></button>
-                </div>
-            </div>
-
-            <div id="messages-container" class="chat-content"></div>
-
-            <div id="typing-monitor" style="height: 20px; font-size: 0.8em; color: #00ff88; padding-left: 15px; font-style: italic;"></div>
-
-            <div class="chat-input-wrapper">
-                <input type="text" id="msg-input" placeholder="Sua mensagem..." autocomplete="off">
-                <button id="btn-enviar"><i class="fa-solid fa-paper-plane"></i></button>
-            </div>
-        </div>
-    </main>
-
-    <div id="master-modal" class="modal-overlay">
-        <div class="theme-compact-box master-box">
-            <h3 class="modal-title"><i class="fa-solid fa-crown"></i> Painel Master</h3>
-            <ul id="master-user-list" class="master-list"></ul>
-            <button id="btn-clear-all" class="btn-clear-all-red" style="display:none;">LIMPAR TODO O CHAT</button>
-            <button id="btn-close-master" class="btn-close-master">FECHAR</button>
-        </div>
-    </div>
-
-    <div id="punish-modal" class="modal-overlay">
-        <div class="theme-compact-box punish-ui">
-            <i class="fa-solid fa-hand fa-3x pulse-red"></i>
-            <h3 class="modal-title">SUSPENSO</h3>
-            <p>Você está de castigo por 10 segundos.</p>
-            <div id="punish-timer">10</div>
-        </div>
-    </div>
-
-    <div id="theme-modal" class="modal-overlay">
-        <div class="theme-compact-box">
-            <h3 class="modal-title">Estilos</h3>
-            <div class="theme-grid">
-                <div class="theme-opt-circle" data-theme="theme-clean"><i class="fa-solid fa-sun"></i></div>
-                <div class="theme-opt-circle" data-theme="theme-dark"><i class="fa-solid fa-moon"></i></div>
-                <div class="theme-opt-circle" data-theme="theme-neon"><i class="fa-solid fa-flask-vial"></i></div>
-                <div class="theme-opt-circle" data-theme="theme-electric"><i class="fa-solid fa-bolt"></i></div>
-                <div class="theme-opt-circle" data-theme="theme-kitty"><i class="fa-solid fa-cat"></i></div>
-                <div class="theme-opt-circle" data-theme="theme-doggy"><i class="fa-solid fa-dog"></i></div>
-                <div class="theme-opt-circle" data-theme="theme-thunderstorm"><i class="fa-solid fa-skull"></i></div>
-                <div class="theme-opt-circle" data-theme="theme-arctic"><i class="fa-solid fa-snowflake"></i></div>
-                <div class="theme-opt-circle" data-theme="theme-gamer"><i class="fa-solid fa-gamepad"></i></div>
-                <div class="theme-opt-circle" data-theme="theme-xbox-bsod"><i class="fa-brands fa-xbox"></i></div>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+</head>
+<body class="theme-classic">
+
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="perspective-container">
+        <div class="app-card" id="card">
+            
+            <i class="fa-solid fa-palette theme-icon-btn" id="themePickerBtn"></i>
+            
+            <div class="theme-menu" id="themeMenu">
+                <button class="theme-option active" data-theme="classic"><i class="fa-solid fa-circle-half-stroke"></i></button>
+                <button class="theme-option" data-theme="sunset"><i class="fa-solid fa-sun"></i></button>
+                <button class="theme-option" data-theme="forest"><i class="fa-solid fa-tree"></i></button>
+                <button class="theme-option" data-theme="cyber"><i class="fa-solid fa-microchip"></i></button>
+                <button class="theme-option" data-theme="vaporwave"><i class="fa-solid fa-clapperboard"></i></button>
+                <button class="theme-option" data-theme="dracula"><i class="fa-solid fa-moon"></i></button>
+                <button class="theme-option" data-theme="mars"><i class="fa-solid fa-user-astronaut"></i></button>
+                <button class="theme-option" data-theme="luxury"><i class="fa-solid fa-crown"></i></button>
+            </div>
+
+            <div class="presence-menu" id="presenceMenu">
+                <div class="presence-header">USUÁRIOS ONLINE</div>
+                <ul id="userList"></ul>
+            </div>
+
+            <div class="inner-content">
+                <div id="authSection" class="screen active">
+                    <header class="app-header">
+                        <i class="fa-solid fa-comments logo-icon"></i>
+                        <h1 class="app-title">
+                            <span class="part-chat">CHAT</span><span class="part-ado" data-text="ADO">ADO</span>
+                        </h1>
+                        <p class="app-tagline">Conexões imersivas em tempo real.</p>
+                    </header>
+                    
+                    <div class="input-group">
+                        <div class="input-wrapper">
+                            <i class="fa-regular fa-user" id="userIcon"></i>
+                            <input type="text" id="userName" placeholder="Seu apelido..." maxlength="15" autocomplete="off">
+                        </div>
+                        <button class="btn-primary" id="startBtn" disabled>
+                            <span>ENTRAR NO CHAT</span>
+                            <i class="fa-solid fa-rocket"></i>
+                        </button>
+                    </div>
+
+                    <footer class="app-footer">
+                        <div class="footer-content">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span class="footer-text">Ambiente Criptografado</span>
+                        </div>
+                    </footer>
+                </div>
+
+                <div id="chatSection" class="screen">
+                    <header class="chat-header">
+                        <div class="user-info">
+                            <div class="status-dot"></div>
+                            <span id="displayUserName">...</span>
+                        </div>
+                        <div class="online-counter" id="onlineCounterBtn">
+                            <i class="fa-solid fa-users"></i>
+                            <span id="onlineCount">0</span>
+                        </div>
+                        <i class="fa-solid fa-power-off logout-btn" id="logoutBtn"></i>
+                    </header>
+                    
+                    <div id="chatMessages" class="chat-messages"></div>
+
+                    <div id="typingIndicator" class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <span id="typingText"></span>
+                    </div>
+                    
+                    <div class="chat-input-area">
+                        <div class="emoji-menu" id="emojiMenu">
+                            <div class="emoji-item">😀</div><div class="emoji-item">😂</div><div class="emoji-item">😍</div>
+                            <div class="emoji-item">😎</div><div class="emoji-item">🤔</div><div class="emoji-item">🔥</div>
+                            <div class="emoji-item">🚀</div><div class="emoji-item">✨</div><div class="emoji-item">❤️</div>
+                            <div class="emoji-item">👍</div><div class="emoji-item">🎮</div><div class="emoji-item">🌈</div>
+                        </div>
+                        
+                        <button class="emoji-trigger" id="emojiBtn">
+                            <i class="fa-regular fa-face-smile"></i>
+                        </button>
+                        
+                        <input type="text" id="chatInput" placeholder="Sua mensagem..." autocomplete="off">
+                        <button id="sendBtn" class="btn-send"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
