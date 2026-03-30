@@ -652,3 +652,388 @@ input:focus { border-color: var(--accent); background: rgba(255, 255, 255, 0.06)
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+/* Esconde a área de input por padrão */
+.chat-input-area {
+    display: none;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+
+/* Classe para mostrar quando um contato for selecionado */
+.chat-input-area.show {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Estilo para o item da lista selecionado */
+#userList li {
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#userList li:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+#userList li.selected {
+    background: var(--accent);
+    color: white;
+}
+/* Cabeçalho do contato selecionado dentro do chat */
+.active-contact-header {
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.2);
+    font-size: 0.85rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--accent);
+    display: none; /* Escondido por padrão */
+    align-items: center;
+    gap: 8px;
+}
+
+.active-contact-header.show {
+    display: flex;
+}
+
+/* Ajuste na área de input para aparecer apenas com contato */
+.chat-input-area {
+    display: none;
+}
+.chat-input-area.show {
+    display: flex;
+}
+/* Estilo Moderno para o Contador */
+.unread-badge {
+    background: linear-gradient(135deg, #ff4b2b, #ff0844);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 800;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-left: 10px;
+    box-shadow: 0 0 10px rgba(255, 75, 43, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: bouncePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes bouncePop {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+}
+
+/* Ajuste de posição dos botões de ação superiores */
+#themePickerBtn {
+    margin-right: 15px; /* Separa do botão de logout/fechar */
+    z-index: 10;
+}
+
+/* Botão de Encerrar Conversa Injetado */
+.close-chat-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: var(--text);
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+    margin-left: 15px;
+}
+
+.close-chat-btn:hover {
+    background: #ef4444;
+    color: white;
+}
+/* Botão de Novo Grupo na Sidebar */
+#createGroupBtn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: var(--accent);
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#createGroupBtn:hover {
+    background: var(--accent);
+    color: #fff;
+}
+
+/* Diferenciação de Grupos na Lista */
+.group-dot {
+    background: #ffcc00 !important; /* Cor dourada para grupos */
+    box-shadow: 0 0 8px #ffcc00;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+/* Conteúdo do Modal */
+.modal-content {
+    background: #1a1a1a;
+    border: 1px solid var(--accent);
+    padding: 25px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 350px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-label {
+    font-size: 0.8rem;
+    color: #888;
+    margin: 15px 0 10px;
+}
+
+/* Lista de membros com checkboxes */
+#groupMembersList {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+#groupMembersList div {
+    padding: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+#groupMembersList label {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Botão de confirmação dentro do modal */
+.primary-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    border: none;
+    color: white;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.primary-btn:hover {
+    filter: brightness(1.2);
+    transform: translateY(-2px);
+}
+/* Ícone de Grupo no Header */
+.group-icon-btn {
+    margin-right: 15px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: 0.3s;
+    color: var(--accent);
+}
+.group-icon-btn:hover { opacity: 1; transform: scale(1.1); }
+
+/* Modal de Grupo Customizado */
+.custom-modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 10000;
+}
+.custom-modal.active { display: flex; }
+.modal-content {
+    background: #1a1a1a;
+    padding: 25px;
+    border-radius: 15px;
+    border: 1px solid var(--accent);
+    width: 300px;
+}
+#groupMembersList {
+    margin: 15px 0;
+    max-height: 150px;
+    overflow-y: auto;
+}
+.member-sel {
+    padding: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+.modal-actions button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+#confirmGroup { background: var(--accent); color: white; }
+#cancelGroup { background: #333; color: #ccc; }
+
+/* Badge de Mensagens */
+.unread-badge {
+    background: var(--accent);
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 5px;
+}
+.group-dot { background: #ffcc00 !important; }
+.chat-input-area {
+    position: relative;
+    z-index: 100; /* Garante que fique acima das partículas */
+}
+
+#chatMessages {
+    padding-bottom: 80px; /* Evita que as mensagens cubram o input */
+}
+/* --- ESTILOS DO INPUT INJETADO --- */
+.chat-input-area { 
+    position: relative; padding: 15px 0; display: flex; gap: 10px; 
+    z-index: 9999; background: var(--bg-card); align-items: center;
+}
+
+.dynamic-input { 
+    flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
+    padding: 12px 15px 12px 45px; border-radius: 14px; color: #fff; outline: none; 
+    font-size: 0.95rem; transition: 0.3s;
+}
+.dynamic-input:focus { border-color: var(--accent); background: rgba(255,255,255,0.08); box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.1); }
+
+/* BOTÃO EMOJI (DENTRO DO INPUT) */
+.dynamic-emoji-btn {
+    position: absolute; left: 12px; background: none; border: none; 
+    color: var(--accent); font-size: 1.2rem; cursor: pointer; z-index: 10000;
+    transition: 0.2s; display: flex; align-items: center;
+}
+.dynamic-emoji-btn:hover { transform: scale(1.2); filter: brightness(1.3); }
+
+/* BOTÃO ENVIAR */
+.dynamic-send-wrapper { position: relative; display: flex; align-items: center; }
+.dynamic-btn-send { 
+    width: 48px; height: 48px; border-radius: 14px; background: var(--accent); 
+    border: none; color: #fff; cursor: pointer; transition: 0.3s;
+    display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+    box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.3);
+}
+.dynamic-btn-send:hover { transform: translateY(-2px); filter: brightness(1.2); box-shadow: 0 6px 20px rgba(var(--accent-rgb), 0.4); }
+.dynamic-btn-send:active { transform: translateY(0) scale(0.95); }
+
+/* MENU DE EMOJIS DINÂMICO */
+.dynamic-emoji-menu {
+    position: absolute; bottom: 80px; left: 0; background: rgba(15, 23, 42, 0.98);
+    backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px; padding: 12px; display: grid; grid-template-columns: repeat(6, 1fr);
+    gap: 8px; z-index: 10001; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    animation: fadeInUp 0.3s forwards;
+}
+.emoji-item { cursor: pointer; font-size: 1.3rem; padding: 5px; border-radius: 8px; transition: 0.2s; text-align: center; }
+.emoji-item:hover { background: rgba(255,255,255,0.1); transform: scale(1.1); }
+/* Transição suave para todas as mudanças de cores do tema */
+body {
+    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+}
+
+/* Efeito de Fade na troca de tema */
+.theme-transitioning {
+    animation: themeFade 0.6s ease;
+}
+
+@keyframes themeFade {
+    0% { opacity: 1; }
+    50% { opacity: 0.8; filter: blur(2px); }
+    100% { opacity: 1; filter: blur(0px); }
+}
+
+/* Garante que elementos filhos também herdem a transição */
+*, *::before, *::after {
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+/* Transição suave global */
+body {
+    transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+                color 0.5s ease;
+}
+
+/* Classe de animação de transição */
+.theme-transitioning {
+    animation: themeFade 0.6s forwards;
+}
+
+@keyframes themeFade {
+    0% { opacity: 1; filter: brightness(1); }
+    50% { opacity: 0.7; filter: brightness(1.5) blur(1px); }
+    100% { opacity: 1; filter: brightness(1); }
+}
+
+/* Suaviza mudanças em botões e cards */
+.chat-card, .dynamic-btn-send, .dynamic-input {
+    transition: all 0.3s ease-in-out;
+}
+/* Transição suave global */
+body {
+    transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s ease;
+}
+
+/* Animação de Fade ao trocar tema */
+.theme-transitioning {
+    animation: themeFade 0.6s forwards;
+}
+
+@keyframes themeFade {
+    0% { opacity: 1; filter: brightness(1); }
+    50% { opacity: 0.7; filter: brightness(1.3) blur(1px); }
+    100% { opacity: 1; filter: brightness(1); }
+}
+
+/* Brilho Dinâmico no Input (usa a variável --accent do seu tema) */
+.dynamic-input {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dynamic-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 15px var(--accent);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Suaviza a troca de cores nos ícones e botões */
+.dynamic-btn-send, .dynamic-emoji-btn, .close-chat-btn {
+    transition: transform 0.2s ease, color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.dynamic-btn-send:hover {
+    text-shadow: 0 0 8px var(--accent);
+    transform: scale(1.1);
+}
