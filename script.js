@@ -1,218 +1,343 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const card = document.getElementById('card');
-    const authSection = document.getElementById('authSection');
-    const chatSection = document.getElementById('chatSection');
-    const nameInput = document.getElementById('userName');
-    const startBtn = document.getElementById('startBtn');
-    const userIcon = document.getElementById('userIcon');
-    const chatMessages = document.getElementById('chatMessages');
-    const chatInput = document.getElementById('chatInput');
-    const sendBtn = document.getElementById('sendBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const themeBtn = document.getElementById('themePickerBtn');
-    const themeMenu = document.getElementById('themeMenu');
-    const onlineCounterBtn = document.getElementById('onlineCounterBtn');
-    const presenceMenu = document.getElementById('presenceMenu');
-    const userListUl = document.getElementById('userList');
-    const onlineCountSpan = document.getElementById('onlineCount');
-    const typingIndicator = document.getElementById('typingIndicator');
-    const typingText = document.getElementById('typingText');
-    const emojiBtn = document.getElementById('emojiBtn');
-    const emojiMenu = document.getElementById('emojiMenu');
+    // --- ELEMENTOS DO DOM ---
+    const authSection = document.getElementById('authSection'),
+          chatSection = document.getElementById('chatSection'),
+          nameInput = document.getElementById('userName'),
+          startBtn = document.getElementById('startBtn'),
+          userIcon = document.getElementById('userIcon'), 
+          chatMessages = document.getElementById('chatMessages'),
+          logoutBtn = document.getElementById('logoutBtn'),
+          themeBtn = document.getElementById('themePickerBtn'),
+          themeMenu = document.getElementById('themeMenu'),
+          onlineCounterBtn = document.getElementById('onlineCounterBtn'),
+          presenceMenu = document.getElementById('presenceMenu'),
+          userListUl = document.getElementById('userList'),
+          onlineCountSpan = document.getElementById('onlineCount'),
+          typingIndicator = document.getElementById('typingIndicator'),
+          typingText = document.getElementById('typingText'),
+          inputArea = document.getElementById('inputArea'),
+          activeContactHeader = document.getElementById('activeContactHeader'),
+          targetNameSpan = document.getElementById('targetName');
 
-    let myUserName = "";
-    let ably, channel;
-    let typingTimer;
+    // --- ESTADO DO APP ---
+    let myUserName = "", ably, channel, typingTimer, selectedUser = null;
+    let chatHistory = {}, unreadCount = {};
+    const emojis = ['😀','😂','😍','😎','🤔','🔥','🚀','✨','❤️','👍','🎮','🌈'];
 
-    // --- LÓGICA DE PARTÍCULAS ---
-    const canvas = document.getElementById('particleCanvas');
-    const ctx = canvas.getContext('2d');
+    // --- SISTEMA DE PARTÍCULAS (CORES POR TEMA) ---
+    const canvas = document.getElementById('particleCanvas'), ctx = canvas.getContext('2d');
     let particles = [];
 
+    const themeParticleColors = {
+        'dark': '#f1c40f',    // Dourado
+        'light': '#3498db',   // Azul
+        'neon': '#00f2ff',    // Ciano
+        'sunset': '#ff4757',  // Vermelho Coral
+        'forest': '#2ecc71',  // Verde
+        'amethyst': '#a29bfe' // Lilás
+    };
+
     function initParticles() {
+        if (!canvas) return;
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         particles = [];
-        let themeColor = getComputedStyle(document.body).getPropertyValue('--accent').trim();
-        if (!themeColor) themeColor = '#3b82f6'; 
+        
+        const currentTheme = document.body.className.replace('theme-', '') || 'dark';
+        const color = themeParticleColors[currentTheme] || '#3b82f6';
 
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 45; i++) {
             particles.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
-                vx: (Math.random() - 0.5) * 0.6,
-                vy: (Math.random() - 0.5) * 0.6,
-                size: Math.random() * 2 + 0.5,
-                color: themeColor
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: (Math.random() - 0.5) * 0.4,
+                size: Math.random() * 1.8 + 0.5,
+                color: color
             });
         }
     }
 
-    function animate() {
+    function animateParticles() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         particles.forEach(p => {
             p.x += p.vx; p.y += p.vy;
-            if (p.x < 0) p.x = canvas.width;
-            if (p.x > canvas.width) p.x = 0;
-            if (p.y < 0) p.y = canvas.height;
-            if (p.y > canvas.height) p.y = 0;
+            if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+            if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
             ctx.beginPath();
             ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
             ctx.fillStyle = p.color;
-            ctx.globalAlpha = 0.5;
+            ctx.globalAlpha = 0.2;
             ctx.fill();
         });
-        requestAnimationFrame(animate);
+        requestAnimationFrame(animateParticles);
     }
-    initParticles(); animate();
 
-    // --- LOGICA ABLY ---
+    // --- INJEÇÃO DO INPUT DINÂMICO ---
+    function injectInput() {
+        inputArea.style.display = 'flex';
+        inputArea.innerHTML = ''; 
+
+        const emojiMenu = document.createElement('div');
+        emojiMenu.className = 'dynamic-emoji-menu';
+        emojiMenu.style.display = 'none';
+        emojis.forEach(symbol => {
+            const span = document.createElement('span');
+            span.className = 'emoji-item';
+            span.innerText = symbol;
+            span.onclick = (e) => {
+                e.stopPropagation();
+                const inp = document.getElementById('chatInput');
+                if(inp) { inp.value += symbol; inp.focus(); }
+            };
+            emojiMenu.appendChild(span);
+        });
+
+        const emojiBtn = document.createElement('button');
+        emojiBtn.className = 'dynamic-emoji-btn';
+        emojiBtn.innerHTML = '<i class="fa-regular fa-face-smile"></i>';
+        emojiBtn.onclick = (e) => {
+            e.stopPropagation();
+            emojiMenu.style.display = emojiMenu.style.display === 'none' ? 'grid' : 'none';
+        };
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'dynamic-input';
+        input.id = 'chatInput';
+        input.placeholder = 'Digite aqui...';
+        input.autocomplete = 'off';
+
+        const sendBtn = document.createElement('button');
+        sendBtn.className = 'dynamic-btn-send';
+        sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
+
+        inputArea.appendChild(emojiMenu);
+        inputArea.appendChild(emojiBtn);
+        inputArea.appendChild(input);
+        inputArea.appendChild(sendBtn);
+
+        sendBtn.onclick = sendMessage;
+        input.onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
+        
+        input.oninput = () => {
+            if (!channel || !selectedUser) return;
+            channel.presence.update({ isTyping: true, typingTo: selectedUser });
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => {
+                if(channel) channel.presence.update({ isTyping: false, typingTo: null });
+            }, 1500);
+        };
+
+        setTimeout(() => {
+            inputArea.classList.add('show');
+            input.focus();
+        }, 50);
+    }
+
+    function closeCurrentChat() {
+        selectedUser = null;
+        activeContactHeader.style.display = 'none';
+        inputArea.classList.remove('show');
+        inputArea.style.display = 'none';
+        chatMessages.innerHTML = '<div class="msg system">Selecione um contato para conversar.</div>';
+        refreshUI();
+    }
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'close-chat-btn';
+    closeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+    closeBtn.onclick = closeCurrentChat;
+    activeContactHeader.appendChild(closeBtn);
+
+    // --- LÓGICA ABLY ---
     function initAbly(username) {
-        ably = new Ably.Realtime({
-            key: 'zfqwdA.QY0KxQ:_RQcTI6NCeRMNnLLyC8Ebb6Lg50xnDlcwvRv4wQ3H5o',
-            clientId: username
+        ably = new Ably.Realtime({ 
+            key: 'zfqwdA.QY0KxQ:_RQcTI6NCeRMNnLLyC8Ebb6Lg50xnDlcwvRv4wQ3H5o', 
+            clientId: username 
         });
         channel = ably.channels.get('chat-room');
 
         channel.subscribe('message', (msg) => {
-            const isMe = msg.clientId === username;
-            renderMessage(msg.data.text, msg.clientId, isMe);
+            const { text, to } = msg.data;
+            const from = msg.clientId;
+            const partner = (from === myUserName ? to : from);
+
+            if (to === myUserName || from === myUserName) {
+                if (!chatHistory[partner]) chatHistory[partner] = [];
+                chatHistory[partner].push({ text, from, isMe: (from === myUserName) });
+
+                if (partner === selectedUser) {
+                    renderMessage(text, from, from === myUserName);
+                } else {
+                    unreadCount[partner] = (unreadCount[partner] || 0) + 1;
+                    refreshUI();
+                }
+            }
         });
 
-        channel.presence.subscribe(['enter', 'leave', 'present', 'update'], () => {
-            channel.presence.get((err, members) => {
-                if (!err) {
-                    updatePresenceUI(members);
-                    updateTypingUI(members);
-                }
+        channel.presence.subscribe(['enter', 'leave', 'present'], () => refreshUI());
+        channel.presence.subscribe('update', updateTypingUI);
+        channel.presence.enter();
+        renderMessage(`LOGADO COMO: ${username.toUpperCase()}`, "Sistema", false, true);
+    }
+
+    function refreshUI() {
+        if(!channel) return;
+        channel.presence.get((err, members) => {
+            if (err) return;
+            onlineCountSpan.innerText = members.length;
+            userListUl.innerHTML = "";
+            members.forEach(m => { 
+                if(m.clientId !== myUserName) renderListItem(m.clientId); 
             });
         });
-
-        renderMessage(`BEM-VINDO, ${username.toUpperCase()}!`, "Sistema", false, true);
-        channel.presence.enter();
     }
 
-    function updatePresenceUI(members) {
-        onlineCountSpan.innerText = members.length;
-        userListUl.innerHTML = "";
-        members.forEach(m => {
-            const li = document.createElement('li');
-            li.innerHTML = `<div class="dot"></div> ${m.clientId} ${m.clientId === myUserName ? '(Você)' : ''}`;
-            userListUl.appendChild(li);
+    function renderListItem(id) {
+        const li = document.createElement('li');
+        if (selectedUser === id) li.classList.add('selected');
+        const count = unreadCount[id] || 0;
+        
+        li.innerHTML = `
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div class="status-dot" style="background:#22c55e; width:8px; height:8px; border-radius:50%"></div>
+                <span>${id}</span>
+            </div>
+            ${count > 0 ? `<span class="unread-badge pulse-effect">${count}</span>` : ''}
+        `;
+
+        li.onclick = () => {
+            selectedUser = id; 
+            unreadCount[id] = 0;
+            chatMessages.innerHTML = '';
+            targetNameSpan.innerText = id;
+            activeContactHeader.style.display = 'flex';
+            injectInput(); 
+            if (chatHistory[id]) chatHistory[id].forEach(m => renderMessage(m.text, m.from, m.isMe));
+            presenceMenu.classList.remove('open');
+            refreshUI();
+        };
+        userListUl.appendChild(li);
+    }
+
+    function updateTypingUI() {
+        if(!channel) return;
+        channel.presence.get((err, members) => {
+            const isTyping = members.find(m => m.clientId === selectedUser && m.data?.isTyping && m.data?.typingTo === myUserName);
+            typingIndicator.classList.toggle('visible', !!isTyping);
+            if(isTyping) typingText.innerText = `${selectedUser} está digitando...`;
         });
     }
 
-    function updateTypingUI(members) {
-        const typers = members.filter(m => m.data && m.data.isTyping && m.clientId !== myUserName).map(m => m.clientId);
-        if (typers.length > 0) {
-            typingText.innerText = typers.length === 1 ? `${typers[0]} está digitando...` : `${typers.length} pessoas estão digitando...`;
-            typingIndicator.classList.add('visible');
-        } else {
-            typingIndicator.classList.remove('visible');
-        }
-    }
-
-    function renderMessage(text, sender, isMe, isWelcome = false) {
-        const msgDiv = document.createElement('div');
-        if (isWelcome) {
-            msgDiv.className = `msg system welcome-fx`;
-            msgDiv.innerHTML = `<i class="fa-solid fa-star"></i> ${text} <i class="fa-solid fa-star"></i>`;
-        } else {
-            msgDiv.className = `msg ${isMe ? 'sent' : 'received'}`;
-            if (isMe) { msgDiv.innerText = text; } 
-            else { msgDiv.innerHTML = `<small style="display:block; font-size:0.6rem; opacity:0.6; margin-bottom:2px;">${sender}</small>${text}`; }
-        }
-        chatMessages.appendChild(msgDiv);
+    function renderMessage(text, sender, isMe, isSys = false) {
+        const div = document.createElement('div');
+        div.className = `msg ${isSys ? 'system' : (isMe ? 'sent' : 'received')}`;
+        div.innerText = isMe ? text : `${isSys ? '' : sender + ': '}${text}`;
+        chatMessages.appendChild(div);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    // --- EMOJIS ---
-    emojiBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        emojiMenu.classList.toggle('open');
-    });
-
-    document.querySelectorAll('.emoji-item').forEach(emoji => {
-        emoji.addEventListener('click', () => {
-            chatInput.value += emoji.innerText;
-            emojiMenu.classList.remove('open');
-            chatInput.focus();
-        });
-    });
-
-    // --- EVENTOS ---
-    chatInput.addEventListener('input', () => {
-        if(channel) channel.presence.update({ isTyping: true });
-        clearTimeout(typingTimer);
-        typingTimer = setTimeout(() => { if(channel) channel.presence.update({ isTyping: false }); }, 1500);
-    });
-
     function sendMessage() {
-        const text = chatInput.value.trim();
-        if (!text || !channel) return;
-        channel.presence.update({ isTyping: false });
-        channel.publish('message', { text: text });
-        chatInput.value = '';
+        const input = document.getElementById('chatInput');
+        if (!input) return;
+        const text = input.value.trim();
+        if (!text || !selectedUser) return;
+        channel.publish('message', { text: text, to: selectedUser });
+        input.value = '';
+        input.focus();
     }
 
-    startBtn.addEventListener('click', () => {
+    // --- EVENTOS DE INTERFACE ---
+    nameInput.oninput = () => {
+        const v = nameInput.value.trim();
+        startBtn.disabled = v.length < 3;
+        userIcon.classList.toggle('active-user', v.length >= 3);
+    };
+
+    startBtn.onclick = () => {
         myUserName = nameInput.value.trim();
-        if (myUserName.length < 3) return;
-        document.getElementById('displayUserName').innerText = myUserName;
         initAbly(myUserName);
-        themeBtn.classList.add('in-chat'); 
+        document.getElementById('displayUserName').innerText = myUserName;
         authSection.classList.remove('active');
         setTimeout(() => {
             authSection.style.display = 'none';
             chatSection.style.display = 'flex';
             setTimeout(() => chatSection.classList.add('active'), 50);
         }, 400);
-    });
+    };
 
-    logoutBtn.addEventListener('click', () => {
-        if (ably) { channel.presence.leave(); ably.close(); }
-        themeBtn.classList.remove('in-chat');
+    // --- CORREÇÃO DO BOTÃO SAIR ---
+    logoutBtn.onclick = () => {
+        if (ably) {
+            if (channel) channel.presence.leave();
+            ably.close();
+            ably = null;
+            channel = null;
+        }
+        
         chatSection.classList.remove('active');
         setTimeout(() => {
             chatSection.style.display = 'none';
             authSection.style.display = 'flex';
-            nameInput.value = ''; myUserName = "";
-            startBtn.disabled = true;
-            chatMessages.innerHTML = '';
-            setTimeout(() => authSection.classList.add('active'), 50);
+            authSection.classList.add('active');
+            
+            // Reset de Estado
+            myUserName = ""; 
+            nameInput.value = ""; 
+            selectedUser = null;
+            chatHistory = {}; 
+            unreadCount = {}; 
+            chatMessages.innerHTML = "";
+            activeContactHeader.style.display = 'none'; 
+            inputArea.style.display = 'none';
+            onlineCountSpan.innerText = "0"; 
+            userListUl.innerHTML = "";
         }, 400);
-    });
+    };
 
-    sendBtn.addEventListener('click', sendMessage);
-    chatInput.addEventListener('keypress', (e) => e.key === 'Enter' && sendMessage());
+    // --- LÓGICA DO MENU DE TEMAS ---
+    themeBtn.onclick = (e) => { 
+        e.stopPropagation(); 
+        themeMenu.classList.toggle('open'); 
+        
+        // Sincroniza visualmente o botão selecionado ao abrir o menu
+        const currentTheme = document.body.className.replace('theme-', '') || 'dark';
+        document.querySelectorAll('.theme-option').forEach(opt => {
+            opt.classList.toggle('active', opt.dataset.theme === currentTheme);
+        });
+    };
 
-    themeBtn.addEventListener('click', (e) => { e.stopPropagation(); themeMenu.classList.toggle('open'); presenceMenu.classList.remove('open'); emojiMenu.classList.remove('open'); });
-    onlineCounterBtn.addEventListener('click', (e) => { e.stopPropagation(); presenceMenu.classList.toggle('open'); themeMenu.classList.remove('open'); emojiMenu.classList.remove('open'); });
-    
-    document.addEventListener('click', () => { 
-        themeMenu.classList.remove('open'); 
-        presenceMenu.classList.remove('open'); 
-        emojiMenu.classList.remove('open');
-    });
+    onlineCounterBtn.onclick = (e) => { e.stopPropagation(); presenceMenu.classList.toggle('open'); };
     
     document.querySelectorAll('.theme-option').forEach(opt => {
-        opt.addEventListener('click', () => {
-            document.body.className = `theme-${opt.dataset.theme}`;
-            document.querySelectorAll('.theme-option').forEach(b => b.classList.remove('active'));
+        opt.onclick = () => {
+            const theme = opt.dataset.theme;
+            
+            // Remove 'active' de todos e adiciona no selecionado
+            document.querySelectorAll('.theme-option').forEach(el => el.classList.remove('active'));
             opt.classList.add('active');
-            initParticles();
-        });
+
+            document.body.classList.add('theme-transitioning');
+            document.body.className = `theme-${theme}`;
+            themeMenu.classList.remove('open');
+            
+            setTimeout(() => {
+                initParticles();
+            }, 150);
+
+            setTimeout(() => {
+                document.body.classList.remove('theme-transitioning');
+            }, 600);
+        };
     });
 
-    window.addEventListener('resize', initParticles);
-    window.addEventListener('mousemove', (e) => {
-        const xAxis = (window.innerWidth / 2 - e.pageX) / 80;
-        const yAxis = (window.innerHeight / 2 - e.pageY) / 80;
-        if(card) card.style.transform = `rotateY(${xAxis}deg) rotateX(${-yAxis}deg)`;
+    document.addEventListener('click', () => {
+        themeMenu.classList.remove('open');
+        presenceMenu.classList.remove('open');
     });
 
-    nameInput.addEventListener('input', () => {
-        startBtn.disabled = nameInput.value.trim().length < 3;
-        nameInput.value.trim().length >= 3 ? userIcon.classList.add('active-user') : userIcon.classList.remove('active-user');
-    });
+    initParticles();
+    animateParticles();
+    window.onresize = initParticles;
 });
